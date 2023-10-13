@@ -33,6 +33,7 @@ func GetDataDogLogs(filter model.DataDogFilter, cur *string, limit int32) datado
 	apiClient := datadog.NewAPIClient(configuration)
 
 	api := datadogV2.NewLogsApi(apiClient)
+	
 	resp, r, err := api.ListLogs(ctx, *datadogV2.NewListLogsOptionalParameters().WithBody(body))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `LogsApi.ListLogs`: %v\n", err)
@@ -45,7 +46,5 @@ func GetDataDogLogs(filter model.DataDogFilter, cur *string, limit int32) datado
 			AdditionalProperties: map[string]interface{}{},
 		}
 	}
-	fmt.Println("aaa", resp.Data[0].Attributes.GetHost())
-
 	return resp
 }

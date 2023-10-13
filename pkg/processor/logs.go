@@ -31,7 +31,6 @@ func getAllValues(data []interface{}, innerField []model.InnerFieldMapping, ddVa
 
 // get the value inside the nested struct
 func getValue(fl model.InnerFieldMapping, log interface{}) string {
-	// fmt.Println(fl.DdField)
 	field_dep := strings.Split(fl.DdField, ".")
 	n := len(field_dep)
 	val, ok := log.(map[string]interface{})
@@ -76,6 +75,8 @@ func getValueBasedOnType(key string, obj map[string]interface{}) string {
 	}
 	switch reflect.TypeOf(obj[key]).Kind() {
 	case reflect.Float64:
+		// by some reason, numbers in log shows as floting point number
+		// this code converts float to int
 		return fmt.Sprintf("%d", int(math.Round(obj[key].(float64))))
 	case reflect.Int64:
 		return fmt.Sprintf("%d", obj[key].(int64))

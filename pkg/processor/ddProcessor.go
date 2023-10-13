@@ -47,12 +47,10 @@ func (y YamlProcessor) Validate(filename string) (out [][]string, err error) {
 	util.ReadHeader(y.Yaml.Spec.Mapping, &headers)
 	out = append(out, headers)
 	logs := dd.GetDataDogLogs(y.Yaml.Spec.DatadogFilter, nil, 10)
-//	fmt.Println(y.getLogs(logs.Data))
-//	fmt.Println(logs.Data[0].Attributes.GetHost()) works
+
 
 	log.Printf("Found records => %d \n", len(logs.Data))
-//	fmt.Println(logs.Data.Attributes.GetHost())
-//	out = append(out, logs.Data.Attributes.GetHost())
+
 	csvValues, err := y.getLogs(logs.Data)
 	if err != nil {
 		return nil, err
@@ -136,6 +134,7 @@ func (y YamlProcessor) getLogs(source []datadogV2.Log) ([][]string, error) {
 	for _, log := range source {
 		var ddVal []string
 
+		// Fetch hostname from Datadog log
 		ddVal = append(ddVal, fmt.Sprint(log.Attributes.GetHost()))
 		for _, fl := range y.Yaml.Spec.Mapping {
 			if fl.Field == "-" {
@@ -153,11 +152,8 @@ func (y YamlProcessor) getLogs(source []datadogV2.Log) ([][]string, error) {
 				ddVal = append(ddVal, newDdVal...)
 				continue
 			}
-			//fmt.Println(log.Attributes.GetHost())
-		//	ddVal = append(ddVal, fmt.Sprint(log.Attributes.GetHost()))
-
+		
 			log.Attributes.Attributes["message"] = *log.Attributes.Message
-//			log.Attributes.Host = *log.GetHost()
 			val := getValue(fl, log.Attributes.Attributes)
 			ddVal = append(ddVal, fmt.Sprint(val))
 		}
@@ -172,6 +168,7 @@ func (y YamlProcessor) getInterval() []model.Interval {
 	to := y.Yaml.Spec.DatadogFilter.To
 
 	diff_min := (to - from)
+	// reduce the search period from 10 minutes to 100 seconds
 	if (diff_min / 10000) < 10 {
 		interval = append(interval, model.Interval{
 			From: from,
